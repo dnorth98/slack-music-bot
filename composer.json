@@ -1,10 +1,10 @@
 {
     "require": {
         "aws/aws-sdk-php": "2.*",
-        "fullybaked/pslackr" : "*",
-		"silex/silex": "~1.1",
-		"monolog/monolog": "~1.7",
-		"twig/twig": "~1.0"
+	"silex/silex": "~1.1",
+	"monolog/monolog": "~1.7",
+	"guzzle/guzzle": "3.8.*@dev",
+        "deralex/yaml-config-service-provider": "1.0.*@dev"
     },
     "require-dev": {
         "heroku/heroku-buildpack-php": "*"

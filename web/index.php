@@ -1,17 +1,21 @@
 <?php
 
 require('../vendor/autoload.php');
-require_once '../shooker/shooker.php';
 
-function ktotemps($k) {
-	$obj = new stdClass;
-	$obj->celsius = $k-273.15;
-	$obj->fahrenheit = ($obj->celsius*9/5)+32;
-	return $obj;
-}
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Guzzle\Http\Client;
 
 
 $app = new Silex\Application();
+
+$app->register(
+    new DerAlex\Silex\YamlConfigServiceProvider(
+        '../app/config/parameters.yml'
+    )
+);
+
 $app['debug'] = true;
 
 // Register the monolog logging service
@@ -19,25 +23,64 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
+function pause($app,$text) 
+{
+	$returnArray = array("text" => "");
+  	$app['monolog']->addDebug('PAUSE routine: ' . $text );
+
+	// TODO post the command to the queue
+
+	$returnArray['text'] = 'DOOD!  You gave me ' . $text;
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('PAUSE routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
+function play($app,$text) 
+{
+	$returnArray = array("text" => "");
+  	$app['monolog']->addDebug('PLAY routine: ' . $text );
+
+	// TODO post the command to the queue
+
+	$returnArray['text'] = 'DOOD!  You gave me ' . $text;
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('PLAY routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
+function validateToken($inToken,$validToken)
+{
+
+	return ($inToken == $validToken);
+}
 
 $app->post('/', function(Request $request) use($app) {
-  $app['monolog']->addDebug('In handler for root context.');
+	$app['monolog']->addDebug('In handler for root context.');
 
-  $slackToken = getenv('SLACK_TOKEN');
-  $app['monolog']->addDebug('ML Read Slack token: ' . $slackToken);
+	$returnJSON = "{}";
+	$inToken = $request->get('token');
+  	$validToken = getenv('SLACK_TOKEN');
 
-  $shkr = new Shooker($slackToken);
+	// $validToken = "JJMHMqG7bVry0XRKuoFKb1qH"; // DJN REMOVE THIS!!!
 
-  $testTrigger = $shkr->addTrigger("weather");
-  $testTrigger->addAction(function($paramString, $user, $channel){
-	$json = file_get_contents('http://api.openweathermap.org/data/2.5/weather?q='.$paramString);
-	$obj = json_decode($json);
-	$curTemp = ktotemps($obj->main->temp);
-	return "Currently *".round($curTemp->fahrenheit)."F (".round($curTemp->celsius)."C)* and *".$obj->weather[0]->description."*.";
-});
+	if (validateToken($inToken,$validToken))
+	{
+  		$app['monolog']->addDebug('Slack token is ok - message is for us');
 
-  $shkr->listen();
-  return "hello";
+		$word = $request->get('trigger_word');
+		$text = $request->get('text');
+
+  		$app['monolog']->addDebug('Trigger word received: ' . $word);
+
+		$returnJSON = $word($app,$text);
+	}
+
+  return $returnJSON;
 
 });
 
