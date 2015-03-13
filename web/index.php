@@ -10,6 +10,7 @@ function ktotemps($k) {
 	return $obj;
 }
 
+
 $app = new Silex\Application();
 $app['debug'] = true;
 
@@ -19,18 +20,25 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
 ));
 
 $slackToken = getenv('SLACK_TOKEN');
+error_log("EL Read slack token: " . $slackToken);
+$app['monolog']->addDebug('ML Read Slack token: ' . $slackToken);
 
-$shkr = new Shooker($slackToken);
-	 
-$testTrigger = $shkr->addTrigger("weather");
-$testTrigger->addAction(function($paramString, $user, $channel){
+$app->get('/', function() use($app) {
+  $app['monolog']->addDebug('In handler for root context.');
+
+  $shkr = new Shooker($slackToken);
+
+  $testTrigger = $shkr->addTrigger("weather");
+  $testTrigger->addAction(function($paramString, $user, $channel){
 	$json = file_get_contents('http://api.openweathermap.org/data/2.5/weather?q='.$paramString);
 	$obj = json_decode($json);
 	$curTemp = ktotemps($obj->main->temp);
 	return "Currently *".round($curTemp->fahrenheit)."F (".round($curTemp->celsius)."C)* and *".$obj->weather[0]->description."*.";
 });
 
-$shkr->listen();
+  $shkr->listen();
+
+});
 
 $app->run();
 ?>
