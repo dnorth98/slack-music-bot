@@ -19,12 +19,12 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
-$slackToken = getenv('SLACK_TOKEN');
-error_log("EL Read slack token: " . $slackToken);
-$app['monolog']->addDebug('ML Read Slack token: ' . $slackToken);
 
-$app->post('/', function() use($app) {
+$app->post('/', function(Request $request) use($app) {
   $app['monolog']->addDebug('In handler for root context.');
+
+  $slackToken = getenv('SLACK_TOKEN');
+  $app['monolog']->addDebug('ML Read Slack token: ' . $slackToken);
 
   $shkr = new Shooker($slackToken);
 
