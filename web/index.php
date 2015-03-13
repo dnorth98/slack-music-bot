@@ -23,7 +23,7 @@ $slackToken = getenv('SLACK_TOKEN');
 error_log("EL Read slack token: " . $slackToken);
 $app['monolog']->addDebug('ML Read Slack token: ' . $slackToken);
 
-$app->get('/', function() use($app) {
+$app->post('/', function() use($app) {
   $app['monolog']->addDebug('In handler for root context.');
 
   $shkr = new Shooker($slackToken);
