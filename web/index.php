@@ -37,6 +37,7 @@ $app->post('/', function() use($app) {
 });
 
   $shkr->listen();
+  return "hello";
 
 });
 
