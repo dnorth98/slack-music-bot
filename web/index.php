@@ -18,7 +18,9 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
-$shkr = new Shooker('JJMHMqG7bVry0XRKuoFKb1qH');
+$slackToken = getenv('SLACK_TOKEN');
+
+$shkr = new Shooker($slackToken);
 	 
 $testTrigger = $shkr->addTrigger("weather");
 $testTrigger->addAction(function($paramString, $user, $channel){
@@ -30,4 +32,5 @@ $testTrigger->addAction(function($paramString, $user, $channel){
 
 $shkr->listen();
 
+$app->run();
 ?>
