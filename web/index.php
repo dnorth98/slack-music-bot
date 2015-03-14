@@ -12,19 +12,38 @@ $app = new Silex\Application();
 
 $app['debug'] = true;
 
+// Register the postgres service
+$dbopts = parse_url(getenv('DATABASE_URL'));
+$app->register(new Herrera\Pdo\PdoServiceProvider(),
+  array(
+    'pdo.dsn' => 'pgsql:dbname='.ltrim($dbopts["path"],'/').';host='.$dbopts["host"],
+    'pdo.port' => $dbopts["port"],
+    'pdo.username' => $dbopts["user"],
+    'pdo.password' => $dbopts["pass"]
+  )
+);
+
 // Register the monolog logging service
 $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
-function pause($app,$text) 
+function pause($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
+
   	$app['monolog']->addDebug('PAUSE routine: ' . $text );
 
-	// TODO post the command to the queue
+	// write the command to the DB
+	$status = writeToDB($app,$slackUser,"pause",$text);
+	if ($status)
+	{
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked for the current track to be paused';
+	} else
+	{
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask for the current track to be paused';
+	}
 
-	$returnArray['text'] = 'DOOD!  You gave me ' . $text;
 	$returnJSON = json_encode($returnArray);	
 
   	$app['monolog']->addDebug('PAUSE routine returning: ' . $returnJSON );
@@ -32,19 +51,33 @@ function pause($app,$text)
 	return $returnJSON;
 }
 
-function play($app,$text) 
+function play($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
+
   	$app['monolog']->addDebug('PLAY routine: ' . $text );
+	//echo "PLAY routine " . $text . "\n";
 
-	// TODO post the command to the queue
+	// write the command to the DB
+	$status = writeToDB($app,$slackUser,"play",$text);
+	if ($status)
+	{
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted ' . $text . ' for playing';
+	} else
+	{
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to submit ' . $text . ' for playing';
+	}
 
-	$returnArray['text'] = 'DOOD!  You gave me ' . $text;
 	$returnJSON = json_encode($returnArray);	
 
   	$app['monolog']->addDebug('PLAY routine returning: ' . $returnJSON );
 
 	return $returnJSON;
+}
+
+function writeToDB($app,$slackUser,$cmd,$textArg)
+{
+	return true;
 }
 
 function validateToken($inToken,$validToken)
@@ -59,17 +92,37 @@ $app->post('/', function(Request $request) use($app) {
 	$returnJSON = "{}";
 	$inToken = $request->get('token');
   	$validToken = getenv('SLACK_TOKEN');
+  	$configSlackWord = getenv('SLACK_WORD');
+
+	// TESTING
+	//$validToken="foo";
+	//$configSlackWord = "heydj";
 
 	if (validateToken($inToken,$validToken))
 	{
   		$app['monolog']->addDebug('Slack token is ok - message is for us');
 
 		$word = $request->get('trigger_word');
-		$text = $request->get('text');
 
-  		$app['monolog']->addDebug('Trigger word received: ' . $word);
+		if ($word == $configSlackWord)
+		{
+  			$app['monolog']->addDebug('Trigger word received: ' . $word);
 
-		$returnJSON = $word($app,$text);
+			$text = $request->get('text');
+			$slackUser = $request->get('user_name');
+
+			// the text contains our keyword, the command and the argument
+			$wordsArray = explode(" ",$text);
+			$commandWord = $wordsArray[1];
+
+			// get the argument
+			$remainingTextArray = array_slice($wordsArray,2);
+			$remainingText = implode(" ",$remainingTextArray);	
+
+  			$app['monolog']->addDebug('Triggered with cmd: ' . $commandWord . ' Arg: ' . $remainingText);
+			//echo "Triggered with command: " . $commandWord . " Argument: " . $remainingText . "\n";
+			$returnJSON = $commandWord($app,$slackUser,$remainingText);
+		}
 	}
 
   return $returnJSON;

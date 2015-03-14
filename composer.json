@@ -3,7 +3,8 @@
         "aws/aws-sdk-php": "2.*",
 	"silex/silex": "~1.1",
 	"monolog/monolog": "~1.7",
-	"guzzle/guzzle": "3.8.*@dev"
+	"guzzle/guzzle": "3.8.*@dev",
+	"herrera-io/silex-pdo": "~1.2"
     },
     "require-dev": {
         "heroku/heroku-buildpack-php": "*"
