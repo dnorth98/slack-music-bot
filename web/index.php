@@ -10,12 +10,6 @@ use Guzzle\Http\Client;
 
 $app = new Silex\Application();
 
-$app->register(
-    new DerAlex\Silex\YamlConfigServiceProvider(
-        '../app/config/parameters.yml'
-    )
-);
-
 $app['debug'] = true;
 
 // Register the monolog logging service
@@ -66,8 +60,6 @@ $app->post('/', function(Request $request) use($app) {
 	$inToken = $request->get('token');
   	$validToken = getenv('SLACK_TOKEN');
 
-	// $validToken = "JJMHMqG7bVry0XRKuoFKb1qH"; // DJN REMOVE THIS!!!
-
 	if (validateToken($inToken,$validToken))
 	{
   		$app['monolog']->addDebug('Slack token is ok - message is for us');
@@ -81,7 +73,6 @@ $app->post('/', function(Request $request) use($app) {
 	}
 
   return $returnJSON;
-
 });
 
 $app->run();
