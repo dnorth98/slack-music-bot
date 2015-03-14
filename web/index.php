@@ -77,6 +77,20 @@ function play($app,$slackUser,$text)
 
 function writeToDB($app,$slackUser,$cmd,$textArg)
 {
+  	$app['monolog']->addDebug('writeToDB: ' . $cmd . ' for ' . $slackUser );
+	// INSERT INTO dj_actions(dj_command,dj_arg,slack_user,retrieved) values ("A","B","C",FALSE)
+
+	$st = $app['pdo']->prepare('INSERT INTO dj_actions (dj_command,dj_arg,slack_user,retrieved) values (:dj_cmd,:dj_arg,:slack_user,FALSE)');
+	
+	$st->execute(array(
+			'dj_cmd' => $cmd,
+			'dj_arg' => $textArg,
+			'slack_user' => $slackUser	
+			)
+	);
+
+	$app['pdo']->commit();
+
 	return true;
 }
 
