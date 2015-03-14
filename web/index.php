@@ -89,7 +89,7 @@ function writeToDB($app,$slackUser,$cmd,$textArg)
 			)
 	);
 
-	$app['pdo']->commit();
+	// $app['pdo']->commit();
 
 	return true;
 }
