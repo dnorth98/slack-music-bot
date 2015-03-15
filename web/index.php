@@ -28,25 +28,25 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
-function pause($app,$slackUser,$text) 
+function request($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('PAUSE routine: ' . $text );
+  	$app['monolog']->addDebug('REQUEST routine: ' . $text );
 
 	// write the command to the DB
-	$status = writeToDB($app,$slackUser,"pause",$text);
+	$status = writeToDB($app,$slackUser,"request",$text);
 	if ($status)
 	{
-		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked for the current track to be paused';
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted your request for ' . $text . ' to the music controller';
 	} else
 	{
-		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask for the current track to be paused';
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to submit your request for ' . $text . ' to the music controller';
 	}
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('PAUSE routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('REQUEST routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -59,18 +59,85 @@ function play($app,$slackUser,$text)
 	//echo "PLAY routine " . $text . "\n";
 
 	// write the command to the DB
-	$status = writeToDB($app,$slackUser,"play",$text);
+	$status = writeToDB($app,$slackUser,"play","");
 	if ($status)
 	{
-		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted ' . $text . ' for playing';
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to play some funky beats';
 	} else
 	{
-		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to submit ' . $text . ' for playing';
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask the music controller to play some funky beats';
 	}
 
 	$returnJSON = json_encode($returnArray);	
 
   	$app['monolog']->addDebug('PLAY routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
+function stop($app,$slackUser,$text) 
+{
+	$returnArray = array("text" => "");
+
+  	$app['monolog']->addDebug('STOP routine: ' . $text );
+
+	// write the command to the DB
+	$status = writeToDB($app,$slackUser,"stop","");
+	if ($status)
+	{
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to stop the beats';
+	} else
+	{
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask the music controller to stop the beats';
+	}
+
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('PAUSE routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
+function nowplaying($app,$slackUser,$text) 
+{
+	$returnArray = array("text" => "");
+
+  	$app['monolog']->addDebug('NOWPLAYING routine: ' . $text );
+
+	// write the command to the DB
+	$status = writeToDB($app,$slackUser,"nowplaying","");
+	if ($status)
+	{
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to report back what is playing';
+	} else
+	{
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask the music controller what is playing';
+	}
+
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('NOWPLAYING routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
+function help($app,$slackUser,$text)
+{
+	$returnArray = array("text" => "");
+
+  	$app['monolog']->addDebug('HELP routine: ' . $text );
+
+	$helpText = 'You can ask me the following:\n';
+	$helpText = $helpText . 'play - play whatever is queued up\n';
+	$helpText = $helpText . 'stop - stop the funky beats\n';
+	$helpText = $helpText . 'nowplaying - report back what is currently playing\n';
+	$helpText = $helpText . 'request <songname> by <artist> - request a song be added to the playlist\n';
+
+	$returnArray['text'] = $helpText;
+
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('HELP routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
