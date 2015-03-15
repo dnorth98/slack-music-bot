@@ -136,6 +136,8 @@ function help($app,$slackUser,$text)
 	$returnArray['text'] = $helpText;
 
 	$returnJSON = json_encode($returnArray,JSON_HEX_AMP|JSON_HEX_APOS|JSON_NUMERIC_CHECK|JSON_PRETTY_PRINT);
+	// slack wants a non-escaped \n to render multi lines...
+	$returnJSON = str_replace('\\\\n','\\n',$returnJSON);
 
   	$app['monolog']->addDebug('HELP routine returning: ' . $returnJSON );
 
