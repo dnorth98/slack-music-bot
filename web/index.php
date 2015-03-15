@@ -128,10 +128,11 @@ function help($app,$slackUser,$text)
   	$app['monolog']->addDebug('HELP routine: ' . $text );
 
 	$helpText = 'You can ask me the following:\n';
-	$helpText = $helpText . 'play - play whatever is queued up\n';
-	$helpText = $helpText . 'stop - stop the funky beats\n';
-	$helpText = $helpText . 'nowplaying - report back what is currently playing\n';
-	$helpText = $helpText . 'request <songname> by <artist> - request a song be added to the playlist\n';
+	$helpText = $helpText . '*play* - play whatever is queued up\n';
+	$helpText = $helpText . '*stop* - stop the funky beats\n';
+	$helpText = $helpText . '*nowplaying* - report back what is currently playing\n';
+	$helpText = $helpText . '*request* <songname> by <artist> - request a song be added to the playlist\n';
+	$helpText = $helpText . 'eg: heydj request danger zone by kenny loggins\n';
 
 	$returnArray['text'] = $helpText;
 
