@@ -34,7 +34,12 @@ function getValuesFromDB($app,$limit)
 	// returns an array
 	$retArray = array();
 
-	$st = $app['pdo']->prepare('with dj_actions as (update dj_actions set retrieved=true where retrieved=false returning id,dj_command,dj_arg,slack_user) select id,dj_command,dj_arg,slack_user from dj_actions order by id asc;');
+	$sql = "WITH dj_actions AS";
+	$sql.= " (UPDATE dj_actions SET retrieved=true WHERE retrieved=false";
+	$sql.= " RETURNING id,dj_command,dj_arg,slack_user)";
+	$sql.= " SELECT id,dj_command,dj_arg,slack_user FROM dj_actions ORDER BY id ASC;"
+
+	$st = $app['pdo']->prepare($sql);
 	$st->execute();
 
 	$names = array();
@@ -70,7 +75,6 @@ $app->post('/', function(Request $request) use($app) {
 
 	if (validateToken($inToken,$validToken))
 	{
-		echo "token validated\n";
   		$app['monolog']->addDebug('token is ok - message is for us');
 
 		$limit = $request->get('limit');
