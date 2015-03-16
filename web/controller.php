@@ -28,15 +28,15 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
-function getValuesFromDB($app,$limit)
+function getValuesFromDB($app)
 {
-	$app['monolog']->addDebug('getValuesFromDB LIMIT '. $limit);
+	$app['monolog']->addDebug('getValuesFromDB');
 	// returns an array
 	$retArray = array();
 
 	$sql = "WITH dj_actions AS";
 	$sql.= " (UPDATE dj_actions SET retrieved=true WHERE retrieved=false";
-	$sql.= " RETURNING id,dj_command,dj_arg,slack_user)";
+	$sql.= " RETURNING *)";
 	$sql.= " SELECT id,dj_command,dj_arg,slack_user FROM dj_actions ORDER BY id ASC;";
 
 	$st = $app['pdo']->prepare($sql);
@@ -88,7 +88,6 @@ $app->post('/', function(Request $request) use($app) {
 	{
   		$app['monolog']->addDebug('token is ok - message is for us');
 
-		$limit = $request->get('limit');
 		$reset = $request->get('reset');
 
 		if (!empty($reset))
@@ -97,7 +96,7 @@ $app->post('/', function(Request $request) use($app) {
 		}
 
 		// query the DB and return the values in json
-		$dbValsArray = getValuesFromDB($app,$limit);
+		$dbValsArray = getValuesFromDB($app);
 
 		$returnJSON = json_encode($dbValsArray,JSON_HEX_AMP|JSON_HEX_APOS|JSON_NUMERIC_CHECK|JSON_PRETTY_PRINT);
 	}
