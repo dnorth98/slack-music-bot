@@ -34,14 +34,20 @@ function request($app,$slackUser,$text)
 
   	$app['monolog']->addDebug('REQUEST routine: ' . $text );
 
-	// write the command to the DB
-	$status = writeToDB($app,$slackUser,"request",$text);
-	if ($status)
+	if (strpos($text,"by") === false)
 	{
-		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted your request for ' . $text . ' to the music controller';
+		$returnArray['text'] = $slackUser . ', requests need to be of the form SONG by ARTIST. Try again.';
 	} else
 	{
-		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to submit your request for ' . $text . ' to the music controller';
+		// write the command to the DB
+		$status = writeToDB($app,$slackUser,"request",$text);
+		if ($status)
+		{
+			$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted your request for ' . $text . ' to the music controller';
+		} else
+		{
+			$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to submit your request for ' . $text . ' to the music controller';
+		}
 	}
 
 	$returnJSON = json_encode($returnArray);	
