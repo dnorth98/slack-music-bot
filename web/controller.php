@@ -37,7 +37,7 @@ function getValuesFromDB($app,$limit)
 	$sql = "WITH dj_actions AS";
 	$sql.= " (UPDATE dj_actions SET retrieved=true WHERE retrieved=false";
 	$sql.= " RETURNING id,dj_command,dj_arg,slack_user)";
-	$sql.= " SELECT id,dj_command,dj_arg,slack_user FROM dj_actions ORDER BY id ASC;"
+	$sql.= " SELECT id,dj_command,dj_arg,slack_user FROM dj_actions ORDER BY id ASC;";
 
 	$st = $app['pdo']->prepare($sql);
 	$st->execute();
@@ -56,6 +56,17 @@ function getValuesFromDB($app,$limit)
 
 	return $retArray;
 }
+
+function resetDBVals($app)
+{
+	$app['monolog']->addDebug('resetDBVals');
+
+	$sql = "UPDATE dj_actions SET retrieved=false;";
+
+	$st = $app['pdo']->prepare($sql);
+	$st->execute();
+}
+
 function validateToken($inToken,$validToken)
 {
 
@@ -78,6 +89,12 @@ $app->post('/', function(Request $request) use($app) {
   		$app['monolog']->addDebug('token is ok - message is for us');
 
 		$limit = $request->get('limit');
+		$reset = $request->get('reset');
+
+		if (!empty($reset))
+		{
+			resetDBVals($app);
+		}
 
 		// query the DB and return the values in json
 		$dbValsArray = getValuesFromDB($app,$limit);
