@@ -178,7 +178,7 @@ function validateToken($inToken,$validToken)
 
 function userAllowed($app,$currentUser,$allowedUsers)
 {
-	$app['monolog']->addDebug('userAllowed: Checking if $currentUser is allowed.');
+	$app['monolog']->addDebug('userAllowed: Checking if ' . $currentUser . ' is allowed.');
 
 	$allowed =  false;
 	$allowedUsersArray = explode(",",$allowedUsers);
