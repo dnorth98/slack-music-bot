@@ -176,13 +176,41 @@ function validateToken($inToken,$validToken)
 	return ($inToken == $validToken);
 }
 
+function userAllowed($app,$currentUser,$allowedUsers)
+{
+	$app['monolog']->addDebug('userAllowed: Checking if $currentUser is allowed.');
+
+	$allowed =  false;
+	$allowedUsersArray = explode(",",$allowedUsers);
+
+	if ($allowedUsersArray[0] == "*")
+	{
+		$allowed = true;
+	} else
+	{
+		foreach ($allowedUsersArray as $allowedUser)
+		{
+			if (strcasecmp($allowedUser, $currentUser) == 0)
+			{
+				$app['monolog']->addDebug('$currentUser IS allowed.');
+				$allowed = true;
+			}
+		}
+	}
+
+	return $allowed;
+}
+
 $app->post('/', function(Request $request) use($app) {
 	$app['monolog']->addDebug('In handler for root context.');
 
 	$returnJSON = "{}";
+	$returnArray = array();
+
 	$inToken = $request->get('token');
   	$validToken = getenv('SLACK_TOKEN');
   	$configSlackWord = getenv('SLACK_WORD');
+	$validUsers = getenv('SLACK_ALLOWED_USERS');
 
 	// TESTING
 	//$validToken="foo";
@@ -211,7 +239,15 @@ $app->post('/', function(Request $request) use($app) {
 
   			$app['monolog']->addDebug('Triggered with cmd: ' . $commandWord . ' Arg: ' . $remainingText);
 			//echo "Triggered with command: " . $commandWord . " Argument: " . $remainingText . "\n";
-			$returnJSON = $commandWord($app,$slackUser,$remainingText);
+			if (userAllowed($app,$slackUser,$validUsers))
+			{
+				$returnJSON = $commandWord($app,$slackUser,$remainingText);
+			} else
+			{
+				$msgStr = "Sorry, you're not good enough to request tunes!";
+				$returnArray = array("text" => $msgStr);
+				$returnJSON = json_encode($returnArray,JSON_HEX_AMP|JSON_HEX_APOS|JSON_NUMERIC_CHECK|JSON_PRETTY_PRINT);
+			}
 		}
 	}
 
