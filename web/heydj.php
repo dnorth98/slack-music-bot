@@ -81,11 +81,11 @@ function play($app,$slackUser,$text)
 	return $returnJSON;
 }
 
-function next($app,$slackUser,$text) 
+function skip($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('NEXT routine: ' . $text );
+  	$app['monolog']->addDebug('SKIP routine: ' . $text );
 	//echo "NEXT routine " . $text . "\n";
 
 	// write the command to the DB
@@ -100,7 +100,7 @@ function next($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('NEXT routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('SKIP routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
