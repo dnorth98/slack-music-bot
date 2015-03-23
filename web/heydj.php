@@ -81,6 +81,30 @@ function play($app,$slackUser,$text)
 	return $returnJSON;
 }
 
+function next($app,$slackUser,$text) 
+{
+	$returnArray = array("text" => "");
+
+  	$app['monolog']->addDebug('NEXT routine: ' . $text );
+	//echo "NEXT routine " . $text . "\n";
+
+	// write the command to the DB
+	$status = writeToDB($app,$slackUser,"next","");
+	if ($status)
+	{
+		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to skip to the next track';
+	} else
+	{
+		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask the music controller to skip to the next track';
+	}
+
+	$returnJSON = json_encode($returnArray);	
+
+  	$app['monolog']->addDebug('NEXT routine returning: ' . $returnJSON );
+
+	return $returnJSON;
+}
+
 function stop($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
@@ -136,6 +160,7 @@ function help($app,$slackUser,$text)
 	$helpText = 'You can ask me the following:\n';
 	$helpText = $helpText . '*play* - play whatever is queued up\n';
 	$helpText = $helpText . '*stop* - stop the funky beats\n';
+	$helpText = $helpText . '*next* - skip to the next track\n';
 	$helpText = $helpText . '*nowplaying* - report back what is currently playing\n';
 	$helpText = $helpText . '*request* <songname> by <artist> - request a song be added to the playlist\n';
 	$helpText = $helpText . 'eg: heydj request danger zone by kenny loggins\n';
