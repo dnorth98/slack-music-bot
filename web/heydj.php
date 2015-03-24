@@ -32,7 +32,7 @@ function request($app,$slackUser,$text)
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('REQUEST routine: ' . $text );
+  	$app['monolog']->addDebug('HEYDJ REQUEST routine: ' . $slackUser . ' ' . $text );
 
 	if (strpos($text,"by") === false)
 	{
@@ -52,7 +52,7 @@ function request($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('REQUEST routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('HEYDJ REQUEST routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -61,7 +61,7 @@ function play($app,$slackUser,$text)
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('PLAY routine: ' . $text );
+  	$app['monolog']->addDebug('HEYDJ PLAY routine: ' . $slackUser . ' ' . $text );
 	//echo "PLAY routine " . $text . "\n";
 
 	// write the command to the DB
@@ -76,7 +76,7 @@ function play($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('PLAY routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('HEYDJ PLAY routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -85,7 +85,7 @@ function skip($app,$slackUser,$text)
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('SKIP routine: ' . $text );
+  	$app['monolog']->addDebug('HEYDJ SKIP routine: ' . $slackUser . ' ' . $text );
 	//echo "NEXT routine " . $text . "\n";
 
 	// write the command to the DB
@@ -100,7 +100,7 @@ function skip($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('SKIP routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('HEYDJ SKIP routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -109,7 +109,7 @@ function stop($app,$slackUser,$text)
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('STOP routine: ' . $text );
+  	$app['monolog']->addDebug('HEYDJ STOP routine: ' . $slackUser . ' ' . $text );
 
 	// write the command to the DB
 	$status = writeToDB($app,$slackUser,"stop","");
@@ -123,7 +123,7 @@ function stop($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('PAUSE routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('HEYDJ PAUSE routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -132,7 +132,7 @@ function nowplaying($app,$slackUser,$text)
 {
 	$returnArray = array("text" => "");
 
-  	$app['monolog']->addDebug('NOWPLAYING routine: ' . $text );
+  	$app['monolog']->addDebug('HEYDJ NOWPLAYING routine: ' . $slackUser . ' ' . $text );
 
 	// write the command to the DB
 	$status = writeToDB($app,$slackUser,"nowplaying","");
@@ -146,7 +146,7 @@ function nowplaying($app,$slackUser,$text)
 
 	$returnJSON = json_encode($returnArray);	
 
-  	$app['monolog']->addDebug('NOWPLAYING routine returning: ' . $returnJSON );
+  	$app['monolog']->addDebug('HEYDJ NOWPLAYING routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
@@ -180,7 +180,7 @@ function writeToDB($app,$slackUser,$cmd,$textArg)
 {
 	$retVal = true;
 
-  	$app['monolog']->addDebug('writeToDB: ' . $cmd . ' for ' . $slackUser );
+  	$app['monolog']->addDebug('HEYDJ writeToDB: ' . $cmd . ' for ' . $slackUser );
 	// INSERT INTO dj_actions(dj_command,dj_arg,slack_user,retrieved) values ("A","B","C",FALSE)
 
 	$st = $app['pdo']->prepare('INSERT INTO dj_actions (dj_command,dj_arg,slack_user,retrieved) values (:dj_cmd,:dj_arg,:slack_user,FALSE)');
@@ -203,7 +203,7 @@ function validateToken($inToken,$validToken)
 
 function userAllowed($app,$currentUser,$allowedUsers)
 {
-	$app['monolog']->addDebug('userAllowed: Checking if ' . $currentUser . ' is allowed.');
+	$app['monolog']->addDebug('HEYDJ userAllowed: Checking if ' . $currentUser . ' is allowed.');
 
 	$allowed =  false;
 	$allowedUsersArray = explode(",",$allowedUsers);
@@ -217,7 +217,7 @@ function userAllowed($app,$currentUser,$allowedUsers)
 		{
 			if (strcasecmp($allowedUser, $currentUser) == 0)
 			{
-				$app['monolog']->addDebug('$currentUser IS allowed.');
+				$app['monolog']->addDebug('HEYDJ $currentUser IS allowed.');
 				$allowed = true;
 			}
 		}
@@ -227,7 +227,7 @@ function userAllowed($app,$currentUser,$allowedUsers)
 }
 
 $app->post('/', function(Request $request) use($app) {
-	$app['monolog']->addDebug('In handler for root context.');
+	$app['monolog']->addDebug('HEYDJ In handler for root context.');
 
 	$returnJSON = "{}";
 	$returnArray = array();
@@ -243,13 +243,13 @@ $app->post('/', function(Request $request) use($app) {
 
 	if (validateToken($inToken,$validToken))
 	{
-  		$app['monolog']->addDebug('Slack token is ok - message is for us');
+  		$app['monolog']->addDebug('HEYDJ Slack token is ok - message is for us');
 
 		$word = $request->get('trigger_word');
 
 		if ($word == $configSlackWord)
 		{
-  			$app['monolog']->addDebug('Trigger word received: ' . $word);
+  			$app['monolog']->addDebug('HEYDJ Trigger word received: ' . $word);
 
 			$text = $request->get('text');
 			$slackUser = $request->get('user_name');
@@ -262,7 +262,7 @@ $app->post('/', function(Request $request) use($app) {
 			$remainingTextArray = array_slice($wordsArray,2);
 			$remainingText = implode(" ",$remainingTextArray);	
 
-  			$app['monolog']->addDebug('Triggered with cmd: ' . $commandWord . ' Arg: ' . $remainingText);
+  			$app['monolog']->addDebug('HEYDJ Triggered with cmd: ' . $commandWord . ' Arg: ' . $remainingText);
 			//echo "Triggered with command: " . $commandWord . " Argument: " . $remainingText . "\n";
 			if (userAllowed($app,$slackUser,$validUsers))
 			{
