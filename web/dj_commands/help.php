@@ -11,6 +11,7 @@ function help($app,$slackUser,$text)
         $helpText = $helpText . '*stop* - stop the funky beats\n';
         $helpText = $helpText . '*skip* - skip to the next track\n';
         $helpText = $helpText . '*nowplaying* - report back what is currently playing\n';
+        $helpText = $helpText . '*nextup* - report back what is coming up\n';
         $helpText = $helpText . '*request* <songname> by <artist> - request a song be added to the playlist\n'
 ;
         $helpText = $helpText . 'eg: heydj request danger zone by kenny loggins\n';
