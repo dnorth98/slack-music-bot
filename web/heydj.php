@@ -28,6 +28,11 @@ $app->register(new Silex\Provider\MonologServiceProvider(), array(
   'monolog.logfile' => 'php://stderr',
 ));
 
+foreach (glob("commands/*.php") as $filename)
+{
+    include $filename;
+}
+
 function request($app,$slackUser,$text) 
 {
 	$returnArray = array("text" => "");
@@ -77,30 +82,6 @@ function play($app,$slackUser,$text)
 	$returnJSON = json_encode($returnArray);	
 
   	$app['monolog']->addDebug('HEYDJ PLAY routine returning: ' . $returnJSON );
-
-	return $returnJSON;
-}
-
-function skip($app,$slackUser,$text) 
-{
-	$returnArray = array("text" => "");
-
-  	$app['monolog']->addDebug('HEYDJ SKIP routine: ' . $slackUser . ' ' . $text );
-	//echo "NEXT routine " . $text . "\n";
-
-	// write the command to the DB
-	$status = writeToDB($app,$slackUser,"next","");
-	if ($status)
-	{
-		$returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to skip to the next track';
-	} else
-	{
-		$returnArray['text'] = 'I\'m sorry ' . $slackUser . ', I was unable to ask the music controller to skip to the next track';
-	}
-
-	$returnJSON = json_encode($returnArray);	
-
-  	$app['monolog']->addDebug('HEYDJ SKIP routine returning: ' . $returnJSON );
 
 	return $returnJSON;
 }
