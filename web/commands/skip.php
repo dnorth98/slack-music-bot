@@ -1,3 +1,5 @@
+<?php
+
 function skip($app,$slackUser,$text)
 {
         $returnArray = array("text" => "");
