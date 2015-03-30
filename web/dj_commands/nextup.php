@@ -7,7 +7,7 @@ function nextup($app,$slackUser,$text)
         $app['monolog']->addDebug('HEYDJ NEXTUP routine: ' . $slackUser . ' ' . $text );
 
         // write the command to the DB
-        $status = writeToDB($app,$slackUser,"nowplaying","");
+        $status = writeToDB($app,$slackUser,"nextup","");
         if ($status)
         {
                 $returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve asked the music controller to tell us what\'s spinning next';
