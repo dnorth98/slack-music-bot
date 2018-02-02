@@ -91,7 +91,7 @@ function userAllowed($app,$currentUser,$allowedUsers)
 	return $allowed;
 }
 
-$app->post('/', function(Request $request) use($app) {
+$app->post('', function(Request $request) use($app) {
 	$app['monolog']->addDebug('HEYDJ In handler for root context.');
 
 	$returnJSON = "{}";
