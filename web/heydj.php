@@ -142,9 +142,7 @@ $app->post('/', function(Request $request) use($app) {
 	}
 
   return $returnJSON;
-})
- ->assert('uri', '.{0}')
- ->value('uri', '');
+});
 
 $app->run();
 ?>
