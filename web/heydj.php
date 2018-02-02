@@ -34,19 +34,26 @@ foreach (glob("dj_commands/*.php") as $filename)
     include $filename;
 }
 
+function clean($string)
+{
+   return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+}
+
 function writeToDB($app,$slackUser,$cmd,$textArg)
 {
 	$retVal = true;
 
-  	$app['monolog']->addDebug('HEYDJ writeToDB: ' . $cmd . ' for ' . $slackUser );
+  $textArg = clean($textArg);
+
+  $app['monolog']->addDebug('HEYDJ writeToDB: ' . $cmd . ' for ' . $slackUser . ' arg ' . $textArg );
 	// INSERT INTO dj_actions(dj_command,dj_arg,slack_user,retrieved) values ("A","B","C",FALSE)
 
 	$st = $app['pdo']->prepare('INSERT INTO dj_actions (dj_command,dj_arg,slack_user,retrieved) values (:dj_cmd,:dj_arg,:slack_user,FALSE)');
-	
+
 	$retVal = $st->execute(array(
 			'dj_cmd' => $cmd,
 			'dj_arg' => $textArg,
-			'slack_user' => $slackUser	
+			'slack_user' => $slackUser
 			)
 	);
 
@@ -118,7 +125,7 @@ $app->post('/', function(Request $request) use($app) {
 
 			// get the argument
 			$remainingTextArray = array_slice($wordsArray,2);
-			$remainingText = implode(" ",$remainingTextArray);	
+			$remainingText = implode(" ",$remainingTextArray);
 
   			$app['monolog']->addDebug('HEYDJ Triggered with cmd: ' . $commandWord . ' Arg: ' . $remainingText);
 			//echo "Triggered with command: " . $commandWord . " Argument: " . $remainingText . "\n";
