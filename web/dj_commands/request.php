@@ -4,7 +4,7 @@ function request($app,$slackUser,$text)
 {
         $returnArray = array("text" => "");
 
-        $cleanedText = clean($textArg);
+        $cleanedText = clean($text);
 
         $app['monolog']->addDebug('HEYDJ REQUEST routine: ' . $slackUser . ' ' . $text );
 
