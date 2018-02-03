@@ -4,6 +4,8 @@ function request($app,$slackUser,$text)
 {
         $returnArray = array("text" => "");
 
+        $cleanedText = clean($textArg);
+
         $app['monolog']->addDebug('HEYDJ REQUEST routine: ' . $slackUser . ' ' . $text );
 
         if (strpos($text,"by") === false)
@@ -12,7 +14,7 @@ function request($app,$slackUser,$text)
         } else
         {
                 // write the command to the DB
-                $status = writeToDB($app,$slackUser,"request",$text);
+                $status = writeToDB($app,$slackUser,"request",$cleanedText);
                 if ($status)
                 {
                         $returnArray['text'] = 'OK, ' . $slackUser . ' I\'ve submitted your request for ' . $text . ' to the music controller';

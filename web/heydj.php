@@ -43,8 +43,6 @@ function writeToDB($app,$slackUser,$cmd,$textArg)
 {
 	$retVal = true;
 
-  $textArg = clean($textArg);
-
   $app['monolog']->addDebug('HEYDJ writeToDB: ' . $cmd . ' for ' . $slackUser . ' arg ' . $textArg );
 	// INSERT INTO dj_actions(dj_command,dj_arg,slack_user,retrieved) values ("A","B","C",FALSE)
 
